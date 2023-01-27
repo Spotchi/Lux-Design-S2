@@ -1,3 +1,6 @@
 [submodule "juxai_s2"]
 	path = juxai_s2
 	url = https://github.com/RoboEden/jux
+[submodule "lux-python-bot"]
+	path = lux-python-bot
+	url = git@github.com:Spotchi/lux-python-bot.git
