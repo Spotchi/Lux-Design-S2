@@ -1,3 +1,4 @@
+import copy
 import dataclasses
 from argparse import Namespace
 from dataclasses import dataclass
@@ -92,45 +93,59 @@ class EnvConfig:
     #### Units ####
     ROBOTS: Dict[str, UnitConfig] = dataclasses.field(
         default_factory=lambda: dict(
-            LIGHT=UnitConfig(
-                METAL_COST=10,
-                POWER_COST=50,
-                INIT_POWER=50,
-                CARGO_SPACE=100,
-                BATTERY_CAPACITY=150,
-                CHARGE=1,
-                MOVE_COST=1,
-                RUBBLE_MOVEMENT_COST=0.05,
-                DIG_COST=5,
-                SELF_DESTRUCT_COST=10,
-                DIG_RUBBLE_REMOVED=2,
-                DIG_RESOURCE_GAIN=2,
-                DIG_LICHEN_REMOVED=10,
-                RUBBLE_AFTER_DESTRUCTION=1,
-                ACTION_QUEUE_POWER_COST=1,
-            ),
-            HEAVY=UnitConfig(
-                METAL_COST=100,
-                POWER_COST=500,
-                INIT_POWER=500,
-                CARGO_SPACE=1000,
-                BATTERY_CAPACITY=3000,
-                CHARGE=10,
-                MOVE_COST=20,
-                RUBBLE_MOVEMENT_COST=1,
-                DIG_COST=60,
-                SELF_DESTRUCT_COST=100,
-                DIG_RUBBLE_REMOVED=20,
-                DIG_RESOURCE_GAIN=20,
-                DIG_LICHEN_REMOVED=100,
-                RUBBLE_AFTER_DESTRUCTION=10,
-                ACTION_QUEUE_POWER_COST=10,
-            ),
+            LIGHT=light_factory(),
+            HEAVY=heavy_factory(),
         )
     )
 
     @classmethod
     def from_dict(cls, data):
-        data["ROBOTS"]["LIGHT"] = UnitConfig(**data["ROBOTS"]["LIGHT"])
-        data["ROBOTS"]["HEAVY"] = UnitConfig(**data["ROBOTS"]["HEAVY"])
-        return cls(**data)
+        new_data = copy.deepcopy(data)
+        new_data["ROBOTS"] = new_data.get("ROBOTS", {})
+        new_data["ROBOTS"]["LIGHT"] = light_factory(**new_data.get("ROBOTS", {}).get("LIGHT", {}))
+        new_data["ROBOTS"]["HEAVY"] = heavy_factory(**new_data.get("ROBOTS", {}).get("HEAVY", {}))
+        return cls(**new_data)
+
+def light_factory(**kwargs):
+    light_updated_kwargs = dict(list(LIGHT_KWARGS.items()) + list(kwargs.items()))
+    return UnitConfig(**light_updated_kwargs)
+
+def heavy_factory(**kwargs):
+    heavy_updated_kwargs = dict(list(HEAVY_KWARGS.items()) + list(kwargs.items()))
+    return UnitConfig(**heavy_updated_kwargs)
+
+HEAVY_KWARGS = {
+    "METAL_COST": 100,
+    "POWER_COST": 500,
+    "INIT_POWER": 500,
+    "CARGO_SPACE": 1000,
+    "BATTERY_CAPACITY": 3000,
+    "CHARGE": 10,
+    "MOVE_COST": 20,
+    "RUBBLE_MOVEMENT_COST": 1,
+    "DIG_COST": 60,
+    "SELF_DESTRUCT_COST": 100,
+    "DIG_RUBBLE_REMOVED": 20,
+    "DIG_RESOURCE_GAIN": 20,
+    "DIG_LICHEN_REMOVED": 100,
+    "RUBBLE_AFTER_DESTRUCTION": 10,
+    "ACTION_QUEUE_POWER_COST": 10
+}
+
+LIGHT_KWARGS = {
+    "METAL_COST": 10,
+    "POWER_COST": 50,
+    "INIT_POWER": 50,
+    "CARGO_SPACE": 100,
+    "BATTERY_CAPACITY": 150,
+    "CHARGE": 1,
+    "MOVE_COST": 1,
+    "RUBBLE_MOVEMENT_COST": 0.05,
+    "DIG_COST": 5,
+    "SELF_DESTRUCT_COST": 10,
+    "DIG_RUBBLE_REMOVED": 2,
+    "DIG_RESOURCE_GAIN": 2,
+    "DIG_LICHEN_REMOVED": 10,
+    "RUBBLE_AFTER_DESTRUCTION": 1,
+    "ACTION_QUEUE_POWER_COST": 1
+}

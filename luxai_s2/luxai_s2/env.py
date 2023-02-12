@@ -72,7 +72,7 @@ class LuxAI_S2(ParallelEnv):
 
     def __init__(self, collect_stats: bool = False, **kwargs):
         self.collect_stats = collect_stats  # note: added here instead of in configs since it would break existing bots
-        default_config = EnvConfig(**kwargs)
+        default_config = EnvConfig.from_dict(kwargs)
         self.env_cfg = default_config
         self.possible_agents = ["player_" + str(r) for r in range(2)]
         self.agent_name_mapping = dict(
